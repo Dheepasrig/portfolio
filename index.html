@@ -745,7 +745,7 @@ footer{
     <div class="sec-eyebrow reveal" style="justify-content:center;">Contact</div>
     <h2 class="contact-big reveal d1">Let's build<br/>something <span class="blue-grad">great.</span></h2>
     <p class="contact-sub reveal d2">Have a project in mind? Drop a message and I'll get back within 24 hours.</p>
-    <form class="cform reveal d3" onsubmit="handleFormSubmit(); return false;">
+    <form class="cform reveal d3" >
       <div class="crow">
         <div class="cfield"><label>Your Name</label><input type="text" name="name" placeholder="John Smith"/></div>
         <div class="cfield"><label>Email Address</label><input type="email" name="email" placeholder="john@email.com"/></div>
@@ -881,11 +881,13 @@ if (contactForm) {
   // Also handle if form is submitted via Enter key
   const inputs = contactForm.querySelectorAll('input, textarea');
   inputs.forEach(input => {
-    if (e.key === "Enter" && e.ctrlKey) {
-    e.preventDefault();
-    handleFormSubmit();
-   }
-  });
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && e.ctrlKey) {
+            e.preventDefault();
+            handleFormSubmit();
+        }
+    });
+});
 }
 
 async function handleFormSubmit() {
