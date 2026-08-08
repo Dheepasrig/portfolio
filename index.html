@@ -881,67 +881,61 @@ if (contactForm) {
   // Also handle if form is submitted via Enter key
   const inputs = contactForm.querySelectorAll('input, textarea');
   inputs.forEach(input => {
-    input.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter' && e.ctrlKey && input.tagName === 'TEXTAREA') {
-        handleFormSubmit();
-      }
-    });
+    if (e.key === "Enter" && e.ctrlKey) {
+    e.preventDefault();
+    handleFormSubmit();
+   }
   });
 }
 
-function handleFormSubmit() {
-  const nameInput = document.querySelector('input[name="name"]');
-  const emailInput = document.querySelector('input[name="email"]');
-  const phoneInput = document.querySelector('input[name="phone"]');
-  const budgetInput = document.querySelector('input[name="budget"]');
-  const descriptionInput = document.querySelector('textarea[name="description"]');
+async function handleFormSubmit() {
 
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim();
-  const phone = phoneInput.value.trim();
-  const budget = budgetInput.value.trim();
-  const description = descriptionInput.value.trim();
-
-  // Validation
-  if (!name) {
-    showError('Name is required');
-    return;
-  }
-  if (!email) {
-    showError('Email is required');
-    return;
-  }
-  if (!phone) {
-    showError('Phone is required');
+  if (isSubmitting) {
     return;
   }
 
-  // Create URL with parameters
-  const url = SCRIPT_URL + "?" + new URLSearchParams({
-    name: name,
-    email: email,
-    phone: phone,
-    budget: budget,
-    description: description
-  });
+  isSubmitting = true;
 
-  // Submit via fetch
-  fetch(url, {
-    method: "GET",
-    mode: "no-cors"
-  })
-  .then(() => {
+  const submitBtn = document.querySelector('.cform button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Sending...";
+
+  try {
+
+    const name = document.querySelector('input[name="name"]').value.trim();
+    const email = document.querySelector('input[name="email"]').value.trim();
+    const phone = document.querySelector('input[name="phone"]').value.trim();
+    const budget = document.querySelector('input[name="budget"]').value.trim();
+    const description = document.querySelector('textarea[name="description"]').value.trim();
+
+    const url = SCRIPT_URL + "?" + new URLSearchParams({
+      name,
+      email,
+      phone,
+      budget,
+      description
+    });
+
+    await fetch(url, {
+      method: "GET",
+      mode: "no-cors"
+    });
+
     showSuccess();
-    // Clear form
-    nameInput.value = '';
-    emailInput.value = '';
-    phoneInput.value = '';
-    budgetInput.value = '';
-    descriptionInput.value = '';
-  })
-  .catch(() => {
-    showError('Something went wrong. Please try again.');
-  });
+
+    contactForm.reset();
+
+  } catch (err) {
+
+    showError("Something went wrong.");
+
+  } finally {
+
+    isSubmitting = false;
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Send Message";
+  }
 }
 
 function showSuccess() {
